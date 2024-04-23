@@ -140,7 +140,7 @@ def handle_500(request):
         )
     context = {}
     try:  # This should never fail, but can't be too cautious in error views
-        context["request_path"] = urllib.parse.quote(request.path)
+        context["request_path"] = urllib.parse.quote(request.path_info)
     except Exception:  # pragma: no cover
         pass
     return HttpResponseServerError(template.render(context))

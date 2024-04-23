@@ -80,7 +80,7 @@ class TeamDetail(PermissionRequired, TeamMixin, CreateOrUpdateView):
             else:
                 for error in self.invite_form.errors.values():
                     messages.error(self.request, "\n".join(error))
-            return redirect(self.request.path)
+            return redirect(self.request.path_info)
         return super().post(*args, **kwargs)
 
     def form_valid(self, form):

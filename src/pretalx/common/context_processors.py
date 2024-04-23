@@ -63,7 +63,7 @@ def system_information(request):
     _head = []
     event = getattr(request, "event", None)
 
-    if not request.path.startswith("/orga/"):
+    if not request.path_info.startswith("/orga/"):
         for __, response in footer_link.send(event, request=request):
             if isinstance(response, list):
                 _footer += response
@@ -89,7 +89,7 @@ def system_information(request):
     if (
         not request.user.is_anonymous
         and request.user.is_administrator
-        and request.path.startswith("/orga")
+        and request.path_info.startswith("/orga")
     ):
         gs = GlobalSettings()
         if gs.settings.update_check_result_warning:

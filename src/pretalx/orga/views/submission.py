@@ -382,7 +382,7 @@ class SubmissionContent(
         try:
             return super().get_object()
         except Http404 as not_found:
-            if self.request.path.rstrip("/").endswith("/new"):
+            if self.request.path_info.rstrip("/").endswith("/new"):
                 return None
             return not_found
 

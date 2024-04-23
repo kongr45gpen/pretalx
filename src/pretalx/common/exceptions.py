@@ -59,6 +59,6 @@ class PretalxAdminEmailHandler(AdminEmailHandler):
 
     def emit(self, record):  # pragma: no cover
         request = getattr(record, "request", None)
-        if request and request.path == "/500":
+        if request and request.path_info == "/500":
             return
         return super().emit(record)

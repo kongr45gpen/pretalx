@@ -33,7 +33,7 @@ class SubmissionViewSet(viewsets.ReadOnlyModelViewSet):
     filterset_class = SubmissionFilter
 
     def get_queryset(self):
-        if self.request._request.path.endswith(
+        if self.request._request.path_info.endswith(
             "/talks/"
         ) or not self.request.user.has_perm(
             "orga.view_submissions", self.request.event

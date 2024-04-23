@@ -20,7 +20,7 @@ def orga_events(request):
     """Add data to all template contexts."""
     context = {"settings": settings}
 
-    if not request.path.startswith("/orga/"):
+    if not request.path_info.startswith("/orga/"):
         return {}
 
     if not getattr(request, "user", None) or not request.user.is_authenticated:

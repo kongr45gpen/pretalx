@@ -360,5 +360,5 @@ class SpeakerExport(EventPermissionRequired, FormView):
         result = form.export_data()
         if not result:
             messages.success(self.request, _("No data to be exported"))
-            return redirect(self.request.path)
+            return redirect(self.request.path_info)
         return result

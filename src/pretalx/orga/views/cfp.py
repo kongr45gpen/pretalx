@@ -115,7 +115,7 @@ class CfPQuestionDetail(PermissionRequired, ActionFromUrl, CreateOrUpdateView):
     write_permission_required = "orga.edit_question"
 
     def get_template_names(self):
-        action = self.request.path.lstrip("/").rpartition("/")[2]
+        action = self.request.path_info.lstrip("/").rpartition("/")[2]
         if action in ("edit", "new"):
             return "orga/cfp/question_form.html"
         return "orga/cfp/question_detail.html"
@@ -384,7 +384,7 @@ class CfPQuestionRemind(EventPermissionRequired, TemplateView):
     def post(self, request, *args, **kwargs):
         if not self.filter_form.is_valid():
             messages.error(request, _("Could not send mails, error in configuration."))
-            return redirect(request.path)
+            return redirect(request.path_info)
         if not getattr(request.event, "question_template", None):
             request.event.build_initial_data()
         submissions = self.filter_form.get_submissions()
