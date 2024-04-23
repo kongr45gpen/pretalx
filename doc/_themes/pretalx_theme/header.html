@@ -1,8 +1,8 @@
 <header>
   {% if logo and theme_logo_only %}
-    <a id="logourl" href="{{ pathto "/" }}" class="mobile-hide">
+    <a id="logourl" href="{{ pathto("/") }}" class="mobile-hide">
   {% else %}
-    <a id="logourl" href="{{ pathto "/" }}" class="icon icon-home mobile-hide"> {{ project }}
+    <a id="logourl" href="{{ pathto("/") }}" class="icon icon-home mobile-hide"> {{ project }}
   {% endif %}
 
   {% if logo %}
