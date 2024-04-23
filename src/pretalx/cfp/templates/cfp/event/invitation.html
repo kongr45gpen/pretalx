@@ -37,7 +37,7 @@
         <form method="post" class="form">
             {% csrf_token %}
             <div class="row url-links">
-                <a href="/" class="btn btn-danger btn-lg btn-block">
+                <a href="{% pathto "/" %}" class="btn btn-danger btn-lg btn-block">
                     {% translate "No" %}
                 </a>
                 <button type="submit" class="btn btn-success btn-lg btn-block">
