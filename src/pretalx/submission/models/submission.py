@@ -16,12 +16,13 @@ from django_scopes import ScopedManager
 
 from pretalx.common.exceptions import SubmissionError
 from pretalx.common.models.choices import Choices
-from pretalx.common.models.mixins import GenerateCode, PretalxModel
+from pretalx.common.models.mixins import GenerateCode, PretalxModel, OrderedModel
 from pretalx.common.text.path import path_with_hash
 from pretalx.common.text.phrases import phrases
 from pretalx.common.text.serialize import serialize_duration
 from pretalx.common.urls import EventUrls
 from pretalx.mail.models import MailTemplate, QueuedMail
+from pretalx.person.models import User
 from pretalx.submission.signals import submission_state_change
 
 
@@ -99,6 +100,40 @@ class DeletedSubmissionManager(models.Manager):
 class AllSubmissionManager(models.Manager):
     pass
 
+class SpeakerManager(models.Manager):
+    use_for_related_fields = True
+    
+    def get_queryset(self):
+        print(super().get_queryset())
+        return super().get_queryset().order_by("position").filter(user__name="Carmen Stephens")
+
+class Speaker(OrderedModel, models.Model):
+    user = models.ForeignKey(
+        to="person.User", related_name="submissions", on_delete=models.CASCADE
+    )
+    submission = models.ForeignKey(
+        to="submission.Submission", related_name="speakers", on_delete=models.CASCADE
+    )
+    position = models.IntegerField(default=0)
+
+    # objects = ScopedManager(event="submission__event", _manager_class=SpeakerManager)
+    objects = ScopedManager(event="submission__event")
+
+    @cached_property
+    def event(self):
+        return self.submission.event
+    
+    def __str__(self) -> str:
+        """For public consumption as it is used for Select widgets, e.g. on the
+        feedback form."""
+        return str(self.user)
+
+    def get_order_queryset(self, event):
+        return self.submission.speakers.all()
+    
+    class Meta:
+        ordering = ("position",)
+
 
 class Submission(GenerateCode, PretalxModel):
     """Submissions are, next to :class:`~pretalx.event.models.event.Event`, the
@@ -122,9 +157,9 @@ class Submission(GenerateCode, PretalxModel):
     """
 
     code = models.CharField(max_length=16, unique=True)
-    speakers = models.ManyToManyField(
-        to="person.User", related_name="submissions", blank=True
-    )
+    # speakers = models.ManyToManyField(
+        # to="person.User", related_name="submissions", blank=True, through="submission.Speaker"
+    # )
     event = models.ForeignKey(
         to="event.Event", on_delete=models.PROTECT, related_name="submissions"
     )
@@ -245,6 +280,11 @@ class Submission(GenerateCode, PretalxModel):
         event="event", _manager_class=DeletedSubmissionManager
     )
     all_objects = ScopedManager(event="event", _manager_class=AllSubmissionManager)
+    
+    @property
+    def speaker_users(self):
+        # return [m.user for m in Speaker.objects.filter(submission=self)]
+        return User.objects.filter(submissions__submission__in=[self])
 
     class urls(EventUrls):
         user_base = "{self.event.urls.user_submissions}{self.code}/"
@@ -761,7 +801,7 @@ class Submission(GenerateCode, PretalxModel):
     @cached_property
     def display_speaker_names(self):
         """Helper method for a consistent speaker name display."""
-        return ", ".join(speaker.get_display_name() for speaker in self.speakers.all())
+        return ", ".join(speaker.user.get_display_name() for speaker in self.speakers.all())
 
     @cached_property
     def display_title_with_speakers(self):

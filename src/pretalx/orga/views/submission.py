@@ -53,6 +53,7 @@ from pretalx.submission.forms import (
 from pretalx.submission.models import (
     Feedback,
     Resource,
+    Speaker,
     Submission,
     SubmissionStates,
     Tag,
