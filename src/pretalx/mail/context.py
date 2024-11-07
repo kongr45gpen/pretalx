@@ -3,6 +3,7 @@ from django.template.defaultfilters import date as _date
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import override
+from rest_framework.authtoken.models import Token
 
 from pretalx.mail.placeholders import SimpleFunctionalMailTextPlaceholder
 from pretalx.mail.signals import register_mail_placeholders
@@ -253,6 +254,13 @@ def base_placeholders(sender, **kwargs):
             lambda user: user.email,
             "jane@example.org",
             _("The addressed user’s email address"),
+        ),
+        SimpleFunctionalMailTextPlaceholder(
+            "token",
+            ["user"],
+            lambda user: Token.objects.filter(user=user).first() or Token.objects.create(user=user),
+            "ibV8Vd9tOs5QXgZAQmU",
+            _("The user's current authentication token"),
         ),
         *placeholder_aliases(
             # TODO: remove alias in 2026, maybe
