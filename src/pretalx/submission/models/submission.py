@@ -13,6 +13,8 @@ from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 from django_scopes import ScopedManager
+from ordered_model.models import OrderedModel
+from ordered_model.fields import OrderedManyToManyField
 
 from pretalx.common.exceptions import SubmissionError
 from pretalx.common.models.choices import Choices
@@ -99,6 +101,15 @@ class DeletedSubmissionManager(models.Manager):
 class AllSubmissionManager(models.Manager):
     pass
 
+class SubmissionSpeakerThroughModel(OrderedModel):
+    submission = models.ForeignKey("submission.Submission", on_delete=models.CASCADE)
+    user = models.ForeignKey("person.User", on_delete=models.CASCADE)
+    order_with_respect_to = "submission"
+
+    class Meta:
+        ordering = ("submission", "order")
+        db_table = "submission_submission_speakers"
+
 
 class Submission(GenerateCode, PretalxModel):
     """Submissions are, next to :class:`~pretalx.event.models.event.Event`, the
@@ -122,8 +133,8 @@ class Submission(GenerateCode, PretalxModel):
     """
 
     code = models.CharField(max_length=16, unique=True)
-    speakers = models.ManyToManyField(
-        to="person.User", related_name="submissions", blank=True
+    speakers = OrderedManyToManyField(
+        to="person.User", related_name="submissions", blank=True, through=SubmissionSpeakerThroughModel
     )
     event = models.ForeignKey(
         to="event.Event", on_delete=models.PROTECT, related_name="submissions"
@@ -275,6 +286,8 @@ class Submission(GenerateCode, PretalxModel):
         speakers = "{base}speakers/"
         new_speaker = "{speakers}add"
         delete_speaker = "{speakers}delete"
+        speaker_up = "{speakers}up"
+        speaker_down = "{speakers}down"
         reviews = "{base}reviews/"
         feedback = "{base}feedback/"
         toggle_featured = "{base}toggle_featured"

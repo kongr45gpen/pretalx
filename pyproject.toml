@@ -44,6 +44,7 @@ dependencies = [
   "django-filter==24.2",
   "django-formset-js-improved==0.5.0.3",
   "django-formtools~=2.5.1",
+  "django-ordered-model~=3.8.0a0",
   "django-hierarkey~=1.1.0",
   "django-i18nfield~=1.9.0",
   "django-libsass~=0.8",

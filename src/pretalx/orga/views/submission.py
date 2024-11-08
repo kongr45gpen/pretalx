@@ -20,6 +20,7 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import override
+from django.urls import path
 from django.views.generic import FormView, ListView, TemplateView, UpdateView, View
 from django_context_decorator import context
 
@@ -55,6 +56,7 @@ from pretalx.submission.models import (
     Resource,
     Submission,
     SubmissionStates,
+    SubmissionSpeakerThroughModel,
     Tag,
 )
 
@@ -335,6 +337,32 @@ class SubmissionSpeakersDelete(SubmissionViewMixin, View):
             )
             messages.success(
                 request, _("The speaker has been removed from the proposal.")
+            )
+        else:
+            messages.warning(request, _("The speaker was not part of this proposal."))
+        return redirect(submission.orga_urls.speakers)
+
+
+class SubmissionSpeakersReorder(SubmissionViewMixin, View):
+    permission_required = "submission.edit_speaker_list"
+    direction_up = True
+
+    def __init__(self, *args, direction_up=True, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.direction_up = direction_up
+
+    def dispatch(self, request, *args, **kwargs):
+        super().dispatch(request, *args, **kwargs)
+        submission = self.object
+        speaker = get_object_or_404(User, pk=request.GET.get("id"))
+
+        if submission in speaker.submissions.all():
+            if self.direction_up:
+                SubmissionSpeakerThroughModel.objects.get(submission=submission,user=speaker).up()
+            else:
+                SubmissionSpeakerThroughModel.objects.get(submission=submission,user=speaker).down()
+            messages.success(
+                request, _("The order was updated.")
             )
         else:
             messages.warning(request, _("The speaker was not part of this proposal."))

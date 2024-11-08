@@ -489,6 +489,16 @@ urlpatterns = [
                                 name="submissions.speakers.delete",
                             ),
                             path(
+                                "speakers/up",
+                                submission.SubmissionSpeakersReorder.as_view(direction_up=True),
+                                name="submissions.speakers.up",
+                            ),
+                            path(
+                                "speakers/down",
+                                submission.SubmissionSpeakersReorder.as_view(direction_up=False),
+                                name="submissions.speakers.down",
+                            ),
+                            path(
                                 "reviews/",
                                 review.ReviewSubmission.as_view(),
                                 name="submissions.reviews",

@@ -72,6 +72,7 @@ EXTERNAL_APPS = [
     "compressor",
     "djangoformsetjs",
     "django_filters",
+    "ordered_model",
     "jquery",
     "rest_framework.authtoken",
     "rules",
